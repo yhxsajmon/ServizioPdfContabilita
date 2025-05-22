@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ServizioChiamata")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1a3cac4ccd3f3f4fa87cfc962b118c54bb88e6c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ServizioChiamata")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ServizioChiamata")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

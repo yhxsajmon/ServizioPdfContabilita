@@ -1,12 +1,12 @@
+using System.Diagnostics;
+
 namespace ServizioChiamata;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly IConfiguration _configuration;
-
-    private Timer _timer;
-    private string _executablePath;
+    private readonly string _executablePath;
 
     public Worker(ILogger<Worker> logger, IConfiguration configuration)
     {
@@ -17,19 +17,40 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        PeriodicTimer periodicTimer = new PeriodicTimer(TimeSpan.FromMinutes(_configuration.GetValue<int>("IntervalloAttesa")));
 
-        while (!stoppingToken.IsCancellationRequested)
+        //Timer di attesa
+        var interval = TimeSpan.FromMinutes(_configuration.GetValue<int>("IntervalloAttesa"));
+        using var periodicTimer = new PeriodicTimer(interval);
+        //Loop di esecuzione
+        //while (true)
+        while (await periodicTimer.WaitForNextTickAsync(stoppingToken))
         {
-            if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+
+            try
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                if (!string.IsNullOrWhiteSpace(_executablePath))
+                {
+                    var processInfo = new ProcessStartInfo
+                    {
+                        FileName = _executablePath,
+                        WorkingDirectory = Path.GetDirectoryName(_executablePath) ?? "",
+                        UseShellExecute = false // Important for services!
+                    };
+                    Process.Start(processInfo);
+                    _logger.LogInformation("Process started: {executablePath}", _executablePath);
+                }
+                else
+                {
+                    _logger.LogWarning("Executable path is not set.");
+                }
             }
-
-
-
-
-            await Task.Delay(1000, stoppingToken);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to start process: {executablePath}", _executablePath);
+            }           
         }
     }
+
+    //StopAsync non necessario
 }
